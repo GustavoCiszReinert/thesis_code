@@ -269,14 +269,14 @@ public:
     // Normal Load
 
     // Overturning Couple
-    double Mx(double Fy, float Fz, float gamma, float dpi);
+    double Mx(double Fy, float Fz, float gamma, float dpi) const;
 
     // Rolling Resistance Moment
     double My(double Fx, float Fz, float gamma, float Vx) const;
 
     // Aligning Torque (Combined Slip)
 
-    void tire_model(float Fz, float Vx, float kappa, float alpha, float gamma, int user_mode);
+    void tire_model_calc(float kappa, float alpha, float Vx, float gamma, float Fz, double MF_output [], int user_mode);
 
 };
 

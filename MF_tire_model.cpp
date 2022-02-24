@@ -63,7 +63,7 @@ double MF_tire_model::Mzo(float Fz, float dfz, float alpha, float gamma_star, fl
     return (-to * Fyo) + Mzro;} // Fyo for gamma = turn slip = 0
 
 // OVERTURNING COUPLE
-double MF_tire_model::Mx(double Fy, float Fz, float gamma, float dpi){
+double MF_tire_model::Mx(double Fy, float Fz, float gamma, float dpi) const{
     return UNLOADED_RADIUS * Fz * (QSX1 * LVMX - QSX2 * gamma * (1 + PPMX1 * dpi) + QSX3 * (Fy / FNOMIN) + QSX4 *
     cos(QSX5 * atan(pow(QSX6 * (Fz / FNOMIN), 2))) * sin(QSX7 * gamma + QSX8 * atan(QSX9
     * (Fy / FNOMIN))) + QSX10 * atan(QSX11 * (Fz / FNOMIN)) * gamma) * LMX;}
@@ -74,9 +74,9 @@ double MF_tire_model::My(double Fx, float Fz, float gamma, float Vx) const{
     pow((Vx / LONGVL), 4) + (QSY5 + QSY6 * (Fz / FNOMIN)) * pow(gamma, 2)) * (pow((Fz / FNOMIN), QSY7)
     * pow((INFLPRES / NOMPRES), QSY8)) * LMY;}
 
-void MF_tire_model::tire_model(float Fz, float Vx, float kappa, float alpha, float gamma, int user_mode){
+void MF_tire_model::tire_model_calc(float kappa, float alpha, float Vx, float gamma, float Fz, double MF_output [], int user_mode){
 
-    double MF_output [5] {}; // [Fx, Fy, My, Mz, Mx]
+    // MF_OUTPUT [Fx, Fy, My, Mz, Mx]
 
     float dfz{MF_tire_model::dfz(Fz)};
     float dpi{MF_tire_model::dpi()};

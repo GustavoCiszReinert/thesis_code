@@ -2,6 +2,9 @@
 #include "MF_tire_model.h"
 
 int main() {
-    std::cout << "Hello World!" << std::endl;
+
+    double MF_output [5] {}; // [Fx, Fy, My, Mz, Mx]
+    MF_tire_model tire{};
+
     return 0;
 }
