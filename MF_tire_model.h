@@ -5,7 +5,14 @@
 #ifndef TIRE_MODEL_MF_TIRE_MODEL_H
 #define TIRE_MODEL_MF_TIRE_MODEL_H
 
+#include <iostream>
+#include <fstream>
 #include <cmath>
+#include <string>
+#include <cstring>
+#include <vector>
+#include <map>
+#include <algorithm>
 
 using std::pow;
 using std::abs;
@@ -17,182 +24,187 @@ using std::atan;
 
 class MF_tire_model {
     // Magic Formula tire model v. 6.1.2
+    std::string TIR_file_name {};
+    std::vector <std::string> TIR_file_content {};
 
     // MODEL
-    float LONGVL {}; // Reference velocity
+    double LONGVL {}; // Reference velocity
 
     // DIMENSION
-    float UNLOADED_RADIUS {}; // Unloaded tire radius
+    double UNLOADED_RADIUS {}; // Unloaded tire radius
 
     // OPERATING_CONDITIONS
-    float INFLPRES {}; // Tire inflation pressure, Pa
-    const float NOMPRES {}; // Nominal inflation pressure
+    double INFLPRES {}; // Tire inflation pressure, Pa
+    double NOMPRES {}; // Nominal inflation pressure
 
     // VERTICAL
-    const float FNOMIN {}; // Nominal (rated) wheel load
+    double FNOMIN {}; // Nominal (rated) wheel load
 
     // SCALING_COEFFICIENTS
-    const float LFZO {};
-    const float LCX{};
-    const float LMUX{};
-    const float LEX{};
-    const float LKX{};
-    const float LHX{};
-    const float LVX{};
-    const float LCY{};
-    const float LMUY{};
-    const float LEY{};
-    const float LKY{};
-    const float LKYC{};
-    const float LKZC{};
-    const float LHY{};
-    const float LVY{};
-    const float LTR{};
-    const float LRES{};
-    const float LXAL{};
-    const float LYKA{};
-    const float LVYKA{};
-    const float LS{};
-    const float LMX{};
-    const float LVMX{};
-    const float LMY{};
-    const float LMP{};
+    double LFZO {};
+    double LCX{};
+    double LMUX{};
+    double LEX{};
+    double LKX{};
+    double LHX{};
+    double LVX{};
+    double LCY{};
+    double LMUY{};
+    double LEY{};
+    double LKY{};
+    double LKYC{};
+    double LKZC{};
+    double LHY{};
+    double LVY{};
+    double LTR{};
+    double LRES{};
+    double LXAL{};
+    double LYKA{};
+    double LVYKA{};
+    double LS{};
+    double LMX{};
+    double LVMX{};
+    double LMY{};
+    double LMP{};
 
     // LONGITUDINAL_COEFFICIENTS
-    const double PCX1{};
-    const double PDX1{};
-    const double PDX2{};
-    const double PDX3{};
-    const double PEX1{};
-    const double PEX2{};
-    const double PEX3{};
-    const double PEX4{};
-    const double PKX1{};
-    const double PKX2{};
-    const double PKX3{};
-    const double PHX1{};
-    const double PHX2{};
-    const double PVX1{};
-    const double PVX2{};
-    const double RBX1{};
-    const double RBX2{};
-    const double RBX3{};
-    const double RCX1{};
-    const double REX1{};
-    const double REX2{};
-    const double RHX1{};
-    const double PPX1{};
-    const double PPX2{};
-    const double PPX3{};
-    const double PPX4{};
+    double PCX1{};
+    double PDX1{};
+    double PDX2{};
+    double PDX3{};
+    double PEX1{};
+    double PEX2{};
+    double PEX3{};
+    double PEX4{};
+    double PKX1{};
+    double PKX2{};
+    double PKX3{};
+    double PHX1{};
+    double PHX2{};
+    double PVX1{};
+    double PVX2{};
+    double RBX1{};
+    double RBX2{};
+    double RBX3{};
+    double RCX1{};
+    double REX1{};
+    double REX2{};
+    double RHX1{};
+    double PPX1{};
+    double PPX2{};
+    double PPX3{};
+    double PPX4{};
 
     // OVERTURNING_COEFFICIENTS
-    const double QSX1{};
-    const double QSX2{};
-    const double QSX3{};
-    const double QSX4{};
-    const double QSX5{};
-    const double QSX6{};
-    const double QSX7{};
-    const double QSX8{};
-    const double QSX9{};
-    const double QSX10{};
-    const double QSX11{};
-    const double QSX12{};
-    const double QSX13{};
-    const double QSX14{};
-    const double PPMX1{};
+    double QSX1{};
+    double QSX2{};
+    double QSX3{};
+    double QSX4{};
+    double QSX5{};
+    double QSX6{};
+    double QSX7{};
+    double QSX8{};
+    double QSX9{};
+    double QSX10{};
+    double QSX11{};
+    double QSX12{};
+    double QSX13{};
+    double QSX14{};
+    double PPMX1{};
 
     // LATERAL_COEFFICIENTS
-    const double PCY1{};
-    const double PDY1{};
-    const double PDY2{};
-    const double PDY3{};
-    const double PEY1{};
-    const double PEY2{};
-    const double PEY3{};
-    const double PEY4{};
-    const double PEY5{};
-    const double PKY1{};
-    const double PKY2{};
-    const double PKY3{};
-    const double PKY4{};
-    const double PKY5{};
-    const double PKY6{};
-    const double PKY7{};
-    const double PHY1{};
-    const double PHY2{};
-    const double PVY1{};
-    const double PVY2{};
-    const double PVY3{};
-    const double PVY4{};
-    const double RBY1{};
-    const double RBY2{};
-    const double RBY3{};
-    const double RBY4{};
-    const double RCY1{};
-    const double REY1{};
-    const double REY2{};
-    const double RHY1{};
-    const double RHY2{};
-    const double RVY1{};
-    const double RVY2{};
-    const double RVY3{};
-    const double RVY4{};
-    const double RVY5{};
-    const double RVY6{};
-    const double PPY1{};
-    const double PPY2{};
-    const double PPY3{};
-    const double PPY4{};
-    const double PPY5{};
+    double PCY1{};
+    double PDY1{};
+    double PDY2{};
+    double PDY3{};
+    double PEY1{};
+    double PEY2{};
+    double PEY3{};
+    double PEY4{};
+    double PEY5{};
+    double PKY1{};
+    double PKY2{};
+    double PKY3{};
+    double PKY4{};
+    double PKY5{};
+    double PKY6{};
+    double PKY7{};
+    double PHY1{};
+    double PHY2{};
+    double PVY1{};
+    double PVY2{};
+    double PVY3{};
+    double PVY4{};
+    double RBY1{};
+    double RBY2{};
+    double RBY3{};
+    double RBY4{};
+    double RCY1{};
+    double REY1{};
+    double REY2{};
+    double RHY1{};
+    double RHY2{};
+    double RVY1{};
+    double RVY2{};
+    double RVY3{};
+    double RVY4{};
+    double RVY5{};
+    double RVY6{};
+    double PPY1{};
+    double PPY2{};
+    double PPY3{};
+    double PPY4{};
+    double PPY5{};
 
     // ALIGNING_COEFFICIENTS
-    const double QBZ1{};
-    const double QBZ2{};
-    const double QBZ3{};
-    const double QBZ4{};
-    const double QBZ5{};
-    const double QBZ9{};
-    const double QBZ10{};
-    const double QCZ1{};
-    const double QDZ1{};
-    const double QDZ2{};
-    const double QDZ3{};
-    const double QDZ4{};
-    const double QDZ6{};
-    const double QDZ7{};
-    const double QDZ8{};
-    const double QDZ9{};
-    const double QDZ10{};
-    const double QDZ11{};
-    const double QEZ1{};
-    const double QEZ2{};
-    const double QEZ3{};
-    const double QEZ4{};
-    const double QEZ5{};
-    const double QHZ1{};
-    const double QHZ2{};
-    const double QHZ3{};
-    const double QHZ4{};
-    const double SSZ1{};
-    const double SSZ2{};
-    const double SSZ3{};
-    const double SSZ4{};
-    const double PPZ1{};
-    const double PPZ2{};
+    double QBZ1{};
+    double QBZ2{};
+    double QBZ3{};
+    double QBZ4{};
+    double QBZ5{};
+    double QBZ9{};
+    double QBZ10{};
+    double QCZ1{};
+    double QDZ1{};
+    double QDZ2{};
+    double QDZ3{};
+    double QDZ4{};
+    double QDZ6{};
+    double QDZ7{};
+    double QDZ8{};
+    double QDZ9{};
+    double QDZ10{};
+    double QDZ11{};
+    double QEZ1{};
+    double QEZ2{};
+    double QEZ3{};
+    double QEZ4{};
+    double QEZ5{};
+    double QHZ1{};
+    double QHZ2{};
+    double QHZ3{};
+    double QHZ4{};
+    double SSZ1{};
+    double SSZ2{};
+    double SSZ3{};
+    double SSZ4{};
+    double PPZ1{};
+    double PPZ2{};
 
     // ROLLING_COEFFICIENTS
-    const double QSY1{};
-    const double QSY2{};
-    const double QSY3{};
-    const double QSY4{};
-    const double QSY5{};
-    const double QSY6{};
-    const double QSY7{};
-    const double QSY8{};
+    double QSY1{};
+    double QSY2{};
+    double QSY3{};
+    double QSY4{};
+    double QSY5{};
+    double QSY6{};
+    double QSY7{};
+    double QSY8{};
 
 public:
+
+    // CONSTRUCTOR
+    explicit MF_tire_model(std::string file_name);
 
     //
     float dfz(float Fz) const {return (Fz - LFZO * FNOMIN) / (LFZO * FNOMIN);}
@@ -243,8 +255,8 @@ public:
     double alpha_r(float alpha, double SHf) {return alpha + SHf;}
     double SHf(double SHy, double SVy, double Kya) {return SHy + SVy/Kya;}
     double Bt(float dfz, float gamma_star) {
-        return (QBZ1 + QBZ2 * dfz + QBZ3 * pow(dfz, 2)) * (1 + QBZ5 * abs(gamma_star) + QBZ6
-        * pow(gamma_star, 2)) * LKY / LMUY;}
+        return (QBZ1 + QBZ2 * dfz + QBZ3 * pow(dfz, 2)) * (1 + QBZ4 * gamma_star + QBZ5 * abs(gamma_star))
+        * LKY / LMUY;}
     double Ct() {return QCZ1;}
     double Dto(float Fz, float dfz, float dpi) {
         return Fz * (UNLOADED_RADIUS / (LFZO * FNOMIN)) * (QDZ1 + QDZ2 * dfz) * (1 - PPZ1 * dpi) * LTR;}

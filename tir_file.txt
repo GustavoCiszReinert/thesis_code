@@ -1,0 +1,28 @@
+[MDI_HEADER]
+FILE_TYPE                ='tir'
+FILE_VERSION             = 3.0
+FILE_FORMAT              ='ASCII'
+$----------------------------------------------------------------units
+[SHAPE]
+{radial width}
+ 1.0    0.0 
+ 1.0    0.4 
+ 1.0    0.9 
+ 0.9    1.0 
+[VERTICAL]
+VERTICAL_STIFFNESS       = 97541.00            $Tyre vertical stiffness 
+VERTICAL_DAMPING         = 48770.5                  $Tyre vertical damping       
+BREFF                    = 0.2600                  $Low load stiffness e.r.r.     
+DREFF                    = 0.2500                  $Peak value of e.r.r.     
+FREFF                    = 0.3000               $High load stiffness e.r.r.     
+FNOMIN                   = 1550              $Nominal wheel load
+[LONGITUDINAL_COEFFICIENTS]
+ PCX1                    =  1.965376      $Shape factor Cfx for longitudinal force
+[LATERAL_COEFFICIENTS]
+PKY1 = -15.324 
+PKY2 = 1.715
+PKY3 = 0.3695
+PKY4 = 2.0005
+PKY5 = 0
+PPY1 = -0.6255
+PPY2 = -0.06523

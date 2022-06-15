@@ -3,8 +3,8 @@
 
 int main() {
 
-    double MF_output [5] {}; // [Fx, Fy, My, Mz, Mx]
-    MF_tire_model tire{};
+    double MF_output [5] {}; // [Fx, Fy, My, Mz, Mx] // use std::array
+    MF_tire_model tire{"../tir_file.txt"};
 
     return 0;
 }
