@@ -1,5 +1,5 @@
 //
-// Created by gusta on 14/06/2022.
+// Created by gustavo on 14/06/2022.
 //
 
 #ifndef TIRE_MODEL_IMPORT_TIR_H
@@ -31,7 +31,7 @@ double get_coefficient (std::vector<std::string> TIR_file_content, const std::st
     if (loc != TIR_file_content.end()){
         variable_value = std::stod(*(loc + 2));
     } else {
-        std::cerr << parameter_name << " value has not been found" << std::endl;
+        // std::cerr << parameter_name << " value has not been found" << std::endl;
     }
     return variable_value;
 }
