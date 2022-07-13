@@ -1,7 +1,7 @@
 [MDI_HEADER]
-FILE_TYPE                ='tir'
-FILE_VERSION             = 3.0
-FILE_FORMAT              ='ASCII'
+FILE_TYPE ='tir'
+FILE_VERSION = 3.0
+FILE_FORMAT ='ASCII'
 $----------------------------------------------------------------units
 [SHAPE]
 {radial width}
@@ -10,19 +10,43 @@ $----------------------------------------------------------------units
  1.0    0.9 
  0.9    1.0 
 [VERTICAL]
-VERTICAL_STIFFNESS       = 97541.00            $Tyre vertical stiffness 
-VERTICAL_DAMPING         = 48770.5                  $Tyre vertical damping       
-BREFF                    = 0.2600                  $Low load stiffness e.r.r.     
-DREFF                    = 0.2500                  $Peak value of e.r.r.     
-FREFF                    = 0.3000               $High load stiffness e.r.r.     
-FNOMIN                   = 1550              $Nominal wheel load
-[LONGITUDINAL_COEFFICIENTS]
- PCX1                    =  1.965376      $Shape factor Cfx for longitudinal force
+VERTICAL_STIFFNESS = 97541.00     $Tyre vertical stiffness 
+VERTICAL_DAMPING = 48770.5        $Tyre vertical damping       
+BREFF = 0.2600                    $Low load stiffness e.r.r.     
+DREFF = 0.2500                    $Peak value of e.r.r.     
+FREFF = 0.3000                    $High load stiffness e.r.r.     
+FNOMIN = 4000                     $Nominal wheel load
+[SCALING_COEFFICIENTS]
+LFZO = 1.0                        $Scale factor of nominal (rated) load
+
+LKY = 1.0                         $Scale factor of Fy cornering stiffness
+[LONGITUDINAL_COEFFICIENTS] 
+PCX = 1.965376                    $Shape factor Cfx for longitudinal force
+RHX1 = 0
+[OVERTURNING_COEFFICENTS]
+QSX1 = 0
 [LATERAL_COEFFICIENTS]
+PEY3 = 0
 PKY1 = -15.324 
 PKY2 = 1.715
 PKY3 = 0.3695
 PKY4 = 2.0005
 PKY5 = 0
+PHY1 = 0
+PHY2 = 0
+PVY1 = 0
+PVY2 = 0
 PPY1 = -0.6255
 PPY2 = -0.06523
+RBY3 = 0
+RVY1 = 0
+RVY2 = 0
+[ALIGNING_COEFFICIENTS]
+QBZ4 = 0
+QDZ3 = 0
+QDZ6 = 0
+QDZ7 = 0
+QEZ4 = 0
+QHZ1 = 0
+QHZ2 = 0
+SSZ1 = 0
