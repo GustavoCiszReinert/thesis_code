@@ -67,6 +67,18 @@ class MF_tire_model {
     double LMY{};
     double LMP{};
 
+    // TURN SLIP (ZETA) FACTORS
+    bool TURN_SLIP_MODE = false; // variable to control whether turn slip is neglected (false) or not (true)
+    double ZETA0 {1};
+    double ZETA1 {1};
+    double ZETA2 {1};
+    double ZETA3 {1};
+    double ZETA4 {1};
+    double ZETA5 {1};
+    double ZETA6 {1};
+    double ZETA7 {1};
+    double ZETA8 {1};
+
     // LONGITUDINAL_COEFFICIENTS
     double PCX1{};
     double PDX1{};
@@ -135,6 +147,11 @@ class MF_tire_model {
     double PVY2{};
     double PVY3{};
     double PVY4{};
+    double PPY1{};
+    double PPY2{};
+    double PPY3{};
+    double PPY4{};
+    double PPY5{};
     double RBY1{};
     double RBY2{};
     double RBY3{};
@@ -150,11 +167,6 @@ class MF_tire_model {
     double RVY4{};
     double RVY5{};
     double RVY6{};
-    double PPY1{};
-    double PPY2{};
-    double PPY3{};
-    double PPY4{};
-    double PPY5{};
 
     // ALIGNING_COEFFICIENTS
     double QBZ1{};
@@ -201,6 +213,28 @@ class MF_tire_model {
     double QSY7{};
     double QSY8{};
 
+    // TURNSLIP_COEFFICIENTS
+
+    double PDXP1 = {};
+    double PDXP2 = {};
+    double PDXP3 = {};
+    double PKYP1 = {};
+    double PDYP1 = {};
+    double PDYP2 = {};
+    double PDYP3 = {};
+    double PDYP4 = {};
+    double PHYP1 = {};
+    double PHYP2 = {};
+    double PHYP3 = {};
+    double PHYP4 = {};
+    double PEYP1 = {};
+    double PEYP2 = {};
+    double QDTP1 = {};
+    double QCRP1 = {};
+    double QCRP2 = {};
+    double QBRP1 = {};
+    double QDRP1 = {};
+
 public:
 
     // CONSTRUCTOR
@@ -214,7 +248,7 @@ public:
     // Longitudinal Force (Pure Longitudinal Slip, alpha = 0)
     double kappa_x(float kappa, double SHx) {return kappa + SHx;}
     double Cx() const {return PCX1 * LCX;}
-    double Dx(double mux, float Fz, double zeta1 = 1) {return mux * Fz * zeta1;}
+    double Dx(double mux, float Fz) {return mux * Fz * ZETA1;}
     double mux(float dfz, float dpi, float gamma) const {
         return (PDX1 + PDX2 * dfz) * (1 + PPX3 * dpi + PPX4 * pow(dpi, 2)) * (1 - PDX3 * pow(gamma, 2)) * LMUX;}
     double Ex(float dfz, double kappa_x) const {
@@ -223,31 +257,31 @@ public:
         return Fz * (PKX1 + PKX2 * dfz) * exp(PKX3 * dfz) * (1 + PPX1 * dpi + PPX2 * pow(dpi, 2)) * LKX;}
     double Bx(double Kxk, double Cx, double Dx) {return Kxk / (Cx * Dx);}
     double SHx(float dfz) const {return (PHX1 + PHX2 * dfz) * LHX;}
-    double SVx(float Fz, float dfz, double zeta1 = 1) const {return Fz * (PVX1 + PVX2 * dfz) * LVX * zeta1;} // degressive friction factor not used
+    double SVx(float Fz, float dfz) const {return Fz * (PVX1 + PVX2 * dfz) * LVX * ZETA1;} // degressive friction factor not used
     double Fxo(float Fz, float dfz, float kappa, float gamma, float dpi);
 
     // Lateral Force (Pure Side Slip, kappa = 0)
     double alpha_y(float alpha, double SHy) {return alpha + SHy;}
     double Cy() const {return PCY1 * LCY;}
-    double Dy(double muy, float Fz, double zeta2 = 1) {return muy * Fz * zeta2;}
+    double Dy(double muy, float Fz) {return muy * Fz * ZETA2;}
     double muy(float dfz, float dpi, float gamma_star) const {
         return (PDY1 + PDY2 * dfz) * (1 + PPY3 * dpi + PPY4 * pow(dpi, 2)) * (1 - PDY3 *
         pow(gamma_star, 2)) * LMUY;}
     double Ey (float dfz, float gamma_star, double alpha_y) const {
         return (PEY1 + PEY2 * dfz) * (1 + PEY5 * pow(gamma_star, 2) - (PEY3 + PEY4 * gamma_star) *
         copysign(1.0, alpha_y)) * LEY;}
-    double Kya(float Fz, float dpi, float gamma_star, double zeta3 = 1) const {
+    double Kya(float Fz, float dpi, float gamma_star) const {
         return PKY1 * LFZO * FNOMIN * (1 + PPY1 * dpi) * (1 - PKY3 * abs(gamma_star)) * sin(PKY4 *
-        atan((Fz / (LFZO * FNOMIN)) / ((PKY2 + PKY5 * pow(gamma_star, 2)) * (1 + PPY2 * dpi)))) * zeta3 * LKY;}
+        atan((Fz / (LFZO * FNOMIN)) / ((PKY2 + PKY5 * pow(gamma_star, 2)) * (1 + PPY2 * dpi)))) * ZETA3 * LKY;}
     double By(double Kya, double Cy, double Dy) {return Kya / (Cy * Dy);}
-    double SHy(double Kya, double Kyg0, double SVyg, float dfz, float gamma_star, double zeta0 = 1, double zeta4 = 1) const {
-        return (PHY1 + PHY2 * dfz) * LHY + (Kyg0 * gamma_star - SVyg) / (Kya) * zeta0 + zeta4 - 1;}
-    double SVyg(float Fz, float dfz, float gamma_star, double zeta2 = 1) const {
-        return Fz * (PVY3 + PVY4 * dfz) * gamma_star * LKYC * zeta2;} // degressive friction factor not used
-    double SVy(double SVyg, float Fz, float dfz, double zeta2 = 1) const {
-        return Fz * (PVY1 + PVY2 * dfz) * LVY * zeta2 + SVyg;}
+    double SHy(double Kya, double Kyg0, double SVyg, float dfz, float gamma_star) const {
+        return (PHY1 + PHY2 * dfz) * LHY + (Kyg0 * gamma_star - SVyg) / (Kya) * ZETA0 + ZETA4 - 1;}
+    double SVyg(float Fz, float dfz, float gamma_star) const {
+        return Fz * (PVY3 + PVY4 * dfz) * gamma_star * LKYC * ZETA2;} // degressive friction factor not used
+    double SVy(double SVyg, float Fz, float dfz) const {
+        return Fz * (PVY1 + PVY2 * dfz) * LVY * ZETA2 + SVyg;}
     double Kyg0(float Fz, float dfz, float dpi) const {return Fz * (PKY6 + PKY7 * dfz) * (1 + PPY5 * dpi) * LKYC;}
-    double Fyo(float Fz, float dfz, float alpha, float gamma_star, float dpi);
+    double Fyo(float Fz, float dfz, float alpha, float phi, float gamma_star, float dpi);
 
     // Aligning Torque (Pure Side Slip, kappa = 0)
     double alpha_t(float alpha, double SHt) {return alpha + SHt;}
@@ -260,20 +294,20 @@ public:
     double Ct() {return QCZ1;}
     double Dto(float Fz, float dfz, float dpi) {
         return Fz * (UNLOADED_RADIUS / (LFZO * FNOMIN)) * (QDZ1 + QDZ2 * dfz) * (1 - PPZ1 * dpi) * LTR;}
-    double Dt(double Dto, float gamma_star, double zeta5 = 1) {
-        return Dto * (1 + QDZ3 * std::abs(gamma_star) + QDZ4 * pow(gamma_star, 2)) * zeta5;}
+    double Dt(double Dto, float gamma_star) {
+        return Dto * (1 + QDZ3 * std::abs(gamma_star) + QDZ4 * pow(gamma_star, 2)) * ZETA5;}
     double Et (double Bt, double Ct, double alpha_t, float dfz, float gamma_star) {
         return (QEZ1 + QEZ2 * dfz + QEZ3 * pow(dfz, 2)) * (1 + (QEZ4 + QEZ5 * gamma_star) *
         (2 / M_PI) * atan(Bt * Ct * alpha_t));}
-    double Br(double By, double Cy, double zeta6 = 1) {return (QBZ9 * LKY / LMUY + QBZ10 * By * Cy) * zeta6;}
-    double Cr(double zeta7 = 1) {return zeta7;}
-    double Dr(float Fz, float dfz, float dpi, float gamma_star, double zeta0 = 1, double zeta2 = 1, double zeta8 = 1) {
-        return Fz * UNLOADED_RADIUS * ((QDZ6 + QDZ7 * dfz) * LRES * zeta2 + ((QDZ8 + QDZ9 * dfz) * (1 + PPZ2 * dpi) +
-        (QDZ10 + QDZ11 * dfz) * abs(gamma_star)) * gamma_star * LKZC * zeta0) * LMUY + zeta8 -1;}
+    double Br(double By, double Cy) {return (QBZ9 * LKY / LMUY + QBZ10 * By * Cy) * ZETA6;}
+    double Cr() {return ZETA7;}
+    double Dr(float Fz, float dfz, float dpi, float gamma_star) {
+        return Fz * UNLOADED_RADIUS * ((QDZ6 + QDZ7 * dfz) * LRES * ZETA2 + ((QDZ8 + QDZ9 * dfz) * (1 + PPZ2 * dpi) +
+        (QDZ10 + QDZ11 * dfz) * abs(gamma_star)) * gamma_star * LKZC * ZETA0) * LMUY + ZETA8 -1;}
     double Kzao(double Dto, double Kya) {return Dto * Kya;}
     double Kzgo(double Dto, double Kygo, float Fz, float dfz, float dpi) {
         return Fz * UNLOADED_RADIUS * (QDZ8 + QDZ9 * dfz) * (1 + PPZ2 * dpi) * LKZC * LMUY - Dto * Kygo;}
-    double Mzo(float Fz, float dfz, float alpha, float gamma_star, float dpi);
+    double Mzo(float Fz, float dfz, float alpha, float phi, float gamma_star, float dpi);
     // Longitudinal Force (Combined Slip)
 
     // Lateral Force (Combined Slip)
@@ -288,7 +322,24 @@ public:
 
     // Aligning Torque (Combined Slip)
 
-    void tire_model_calc(float kappa, float alpha, float Vx, float gamma, float Fz, double MF_output [], int user_mode);
+    // Extension of the model for turn slip
+    double Zeta2(float phi, double Byp) {
+        return cos(atan(Byp * (UNLOADED_RADIUS * abs(phi) + PDYP4 * sqrt(UNLOADED_RADIUS * abs(phi)))));}
+    double Byp(float dfz, float alpha) {return PDYP1 * (1 + PDYP2 * dfz) * cos(atan(PDYP3 * tan(alpha)));}
+    double Zeta3(float phi) {return cos(atan(PKYP1 * pow(UNLOADED_RADIUS, 2) * pow(phi, 2)));}
+    double SHyp(double CHyp, double DHyp, double EHyp, double BHyp, float phi) {
+        return DHyp * sin(CHyp * atan(BHyp * UNLOADED_RADIUS * phi - EHyp * (BHyp * UNLOADED_RADIUS * phi -
+                atan(BHyp * UNLOADED_RADIUS * phi))));}
+    double Zeta4(double SHyp, double SVyg, double Kya) {return 1 + SHyp - SVyg / Kya;}
+    double CHyp() {return PHYP1;}
+    double DHyp(float dfz) {return (PHYP2 + PHYP3 * dfz);}
+    double EHyp() {return PHYP4;}
+    double BHyp(double KyRpo, double CHyp, double DHyp, double Kyao) {return KyRpo / (CHyp * DHyp * Kyao);}
+    double KyRpo(double Kyg0, double epsg) {return Kyg0 / (1 - epsg);}
+    double epsg(float dfz) {return PEYP1 * (1 + PEYP2 * dfz);}
+
+
+    void tire_model_calc(float kappa, float alpha, float phi, float Vx, float gamma, float Fz, double MF_output [], int user_mode);
 
 };
 

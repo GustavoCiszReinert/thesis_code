@@ -118,6 +118,11 @@ MF_tire_model::MF_tire_model(std::string file_name) : TIR_file_name(file_name) {
     PVY2 = get_coefficient(TIR_file_content, "PVY2");
     PVY3 = get_coefficient(TIR_file_content, "PVY3");
     PVY4 = get_coefficient(TIR_file_content, "PVY4");
+    PPY1 = get_coefficient(TIR_file_content, "PPY1");
+    PPY2 = get_coefficient(TIR_file_content, "PPY2");
+    PPY3 = get_coefficient(TIR_file_content, "PPY3");
+    PPY4 = get_coefficient(TIR_file_content, "PPY4");
+    PPY5 = get_coefficient(TIR_file_content, "PPY5");
     RBY1 = get_coefficient(TIR_file_content, "RBY1");
     RBY2 = get_coefficient(TIR_file_content, "RBY2");
     RBY3 = get_coefficient(TIR_file_content, "RBY3");
@@ -133,11 +138,6 @@ MF_tire_model::MF_tire_model(std::string file_name) : TIR_file_name(file_name) {
     RVY4 = get_coefficient(TIR_file_content, "RVY4");
     RVY5 = get_coefficient(TIR_file_content, "RVY5");
     RVY6 = get_coefficient(TIR_file_content, "RVY6");
-    PPY1 = get_coefficient(TIR_file_content, "PPY1");
-    PPY2 = get_coefficient(TIR_file_content, "PPY2");
-    PPY3 = get_coefficient(TIR_file_content, "PPY3");
-    PPY4 = get_coefficient(TIR_file_content, "PPY4");
-    PPY5 = get_coefficient(TIR_file_content, "PPY5");
 
     // ALIGNING_COEFFICIENTS
     QBZ1 = get_coefficient(TIR_file_content, "QBZ1");
@@ -183,6 +183,28 @@ MF_tire_model::MF_tire_model(std::string file_name) : TIR_file_name(file_name) {
     QSY6 = get_coefficient(TIR_file_content, "QSY6");
     QSY7 = get_coefficient(TIR_file_content, "QSY7");
     QSY8 = get_coefficient(TIR_file_content, "QSY8");
+
+    // TURNSLIP_COEFFICIENTS
+
+    PDXP1 = get_coefficient(TIR_file_content, "PDXP1");
+    PDXP2 = get_coefficient(TIR_file_content, "PDXP2");
+    PDXP3 = get_coefficient(TIR_file_content, "PDXP3");
+    PKYP1 = get_coefficient(TIR_file_content, "PKYP1");
+    PDYP1 = get_coefficient(TIR_file_content, "PDYP1");
+    PDYP2 = get_coefficient(TIR_file_content, "PDYP2");
+    PDYP3 = get_coefficient(TIR_file_content, "PDYP3");
+    PDYP4 = get_coefficient(TIR_file_content, "PDYP4");
+    PHYP1 = get_coefficient(TIR_file_content, "PHYP1");
+    PHYP2 = get_coefficient(TIR_file_content, "PHYP2");
+    PHYP3 = get_coefficient(TIR_file_content, "PHYP3");
+    PHYP4 = get_coefficient(TIR_file_content, "PHYP4");
+    PEYP1 = get_coefficient(TIR_file_content, "PEYP1");
+    PEYP2 = get_coefficient(TIR_file_content, "PEYP2");
+    QDTP1 = get_coefficient(TIR_file_content, "QDTP1");
+    QCRP1 = get_coefficient(TIR_file_content, "QCRP1");
+    QCRP2 = get_coefficient(TIR_file_content, "QCRP2");
+    QBRP1 = get_coefficient(TIR_file_content, "QBRP1");
+    QDRP1 = get_coefficient(TIR_file_content, "QDRP1");
 }
 
 // LONGITUDINAL FORCE, PURE LONGITUDINAL SLIP
@@ -199,22 +221,47 @@ double MF_tire_model::Fxo(float Fz, float dfz, float kappa, float gamma, float d
     return Dx * sin(Cx * atan(Bx * kappa_x - Ex * (Bx * kappa_x - atan(Bx * kappa_x)))) + SVx;}
 
 // LATERAL FORCE, PURE SIDE SLIP
-double MF_tire_model::Fyo(float Fz, float dfz, float alpha, float gamma_star, float dpi){
+double MF_tire_model::Fyo(float Fz, float dfz, float alpha, float phi, float gamma_star, float dpi){
+    if (TURN_SLIP_MODE) {
+        double Byp{MF_tire_model::Byp(dfz, alpha)};
+        ZETA2 = MF_tire_model::Zeta2(phi, Byp);
+        ZETA3 = MF_tire_model::Zeta3(phi);
+    }
     double Kyg0{MF_tire_model::Kyg0(Fz, dfz, dpi)};
-    double Kya{MF_tire_model::Kya(Fz, dpi, gamma_star)};
-    double SVyg{MF_tire_model::SVyg(Fz, dfz, gamma_star)};
-    double SHy{MF_tire_model::SHy(Kya, Kyg0, SVyg, dfz, gamma_star)};
+    double Kya{MF_tire_model::Kya(Fz, dpi, gamma_star)}; // ZETA3
+    double SVyg{MF_tire_model::SVyg(Fz, dfz, gamma_star)}; // ZETA2
+    if (TURN_SLIP_MODE) {
+        double CHyp {MF_tire_model::CHyp()};
+        double DHyp {MF_tire_model::DHyp(dfz)};
+        double EHyp {MF_tire_model::EHyp()};
+        if (EHyp > 1) {
+            EHyp = 1;
+            std::cerr << "EHyp over limit (> 1)" << std::endl;
+        }
+        double epsg {MF_tire_model::epsg(dfz)};
+        double KyRpo {MF_tire_model::KyRpo(Kyg0, epsg)};
+        double Kyao {MF_tire_model::Kya(Fz, dpi, 0)};
+        double BHyp {MF_tire_model::BHyp(KyRpo, CHyp, DHyp, Kyao)};
+        double SHyp{MF_tire_model::SHyp(CHyp, DHyp, EHyp, BHyp, phi)};
+        ZETA4 = MF_tire_model::Zeta4(SHyp, SVyg, Kya);
+        ZETA0 = 0;
+    }
+    double SHy{MF_tire_model::SHy(Kya, Kyg0, SVyg, dfz, gamma_star)}; // ZETA0 + ZETA4
     double alpha_y{MF_tire_model::alpha_y(alpha, SHy)};
     double Cy{MF_tire_model::Cy()};
     double muy{MF_tire_model::muy(dfz, dpi, gamma_star)};
-    double Dy{MF_tire_model::Dy(muy, Fz)};
+    double Dy{MF_tire_model::Dy(muy, Fz)}; // ZETA2
     double Ey{MF_tire_model::Ey(dfz, gamma_star, alpha_y)};
+    if (Ey > 1) {
+        Ey = 1;
+        std::cerr << "Ey over limit (> 1)" << std::endl;
+    }
     double By{MF_tire_model::By(Kya, Cy, Dy)};
-    double SVy{MF_tire_model::SVy(SVyg, Fz, dfz)};
+    double SVy{MF_tire_model::SVy(SVyg, Fz, dfz)}; // ZETA2
     return Dy * sin(Cy * atan(By * alpha_y - Ey * (By * alpha_y - atan(By * alpha_y)))) + SVy;}
 
 // ALIGNING TORQUE PURE SIDE SLIP
-double MF_tire_model::Mzo(float Fz, float dfz, float alpha, float gamma_star, float dpi){
+double MF_tire_model::Mzo(float Fz, float dfz, float alpha, float phi, float gamma_star, float dpi){
     double SHt{MF_tire_model::SHt(dfz, gamma_star)};
     double alpha_t{MF_tire_model::alpha_t(alpha, SHt)};
     double Bt{MF_tire_model::Bt(dfz, gamma_star)};
@@ -240,7 +287,7 @@ double MF_tire_model::Mzo(float Fz, float dfz, float alpha, float gamma_star, fl
     double Dr{MF_tire_model::Dr(Fz, dfz, dpi, gamma_star)};
     double Mzro{Dr * cos(Cr * atan(Br * alpha_r))};
 
-    double Fyo{MF_tire_model::Fyo(Fz, dfz, alpha, 0, dpi)};
+    double Fyo{MF_tire_model::Fyo(Fz, dfz, alpha, phi, 0, dpi)};
     return (-to * Fyo) + Mzro;} // Fyo for gamma = turn slip = 0
 
 // OVERTURNING COUPLE
@@ -255,7 +302,7 @@ double MF_tire_model::My(double Fx, float Fz, float gamma, float Vx) const{
     pow((Vx / LONGVL), 4) + (QSY5 + QSY6 * (Fz / FNOMIN)) * pow(gamma, 2)) * (pow((Fz / FNOMIN), QSY7)
     * pow((INFLPRES / NOMPRES), QSY8)) * LMY;}
 
-void MF_tire_model::tire_model_calc(float kappa, float alpha, float Vx, float gamma, float Fz, double MF_output [], int user_mode){
+void MF_tire_model::tire_model_calc(float kappa, float alpha, float phi, float Vx, float gamma, float Fz, double MF_output [], int user_mode){
 
     // MF_OUTPUT [Fx, Fy, My, Mz, Mx]
 
@@ -263,14 +310,18 @@ void MF_tire_model::tire_model_calc(float kappa, float alpha, float Vx, float ga
     float dpi{MF_tire_model::dpi()};
     float gamma_star{MF_tire_model::gamma_star(gamma)};
 
+    if (user_mode == 0) { // simplified tire model (tire in linear range)
+
+    }
+
     if (user_mode == 1) { // longitudinal F&M only: Fx, My
         MF_output[0] = MF_tire_model::Fxo(Fz, dfz, kappa, gamma, dpi);
         MF_output[2] = MF_tire_model::My(MF_output[0], Fz, gamma, Vx);
     }
 
     if (user_mode == 2) { // lateral F&M only: Fy, Mz, Mx
-        MF_output[1] = MF_tire_model::Fyo(Fz, dfz, alpha, gamma_star, dpi);
-        MF_output[3] = MF_tire_model::Mzo(Fz, dfz, alpha, gamma_star, dpi);
+        MF_output[1] = MF_tire_model::Fyo(Fz, dfz, alpha, phi, gamma_star, dpi);
+        MF_output[3] = MF_tire_model::Mzo(Fz, dfz, alpha, phi, gamma_star, dpi);
         MF_output[4] = MF_tire_model::Mx(MF_output[1], Fz, gamma, dpi);
     }
 }
