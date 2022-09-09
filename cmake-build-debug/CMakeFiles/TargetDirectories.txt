@@ -1,3 +1,0 @@
-C:/Users/gusta/CLionProjects/tire_model/cmake-build-debug/CMakeFiles/tire_model.dir
-C:/Users/gusta/CLionProjects/tire_model/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/gusta/CLionProjects/tire_model/cmake-build-debug/CMakeFiles/rebuild_cache.dir
