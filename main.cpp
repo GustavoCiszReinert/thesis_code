@@ -1,6 +1,6 @@
 #include <iostream>
 #include "bicycle_model.h"
-#include "bicycle_model.cpp" // I don't know why I have to add this to build the project without any errors
+// #include "bicycle_model.cpp" // I don't know why I have to add this to build the project without any errors
 #include "Eigen/Dense"
 
 using Eigen::MatrixXd;
