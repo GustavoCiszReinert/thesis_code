@@ -6,6 +6,9 @@
 #define TIRE_MODEL_BICYCLE_MODEL_H
 
 #include "MF_tire_model.h"
+#include "Eigen/Dense"
+
+using Eigen::VectorXd;
 
 class bicycle_model {
     // Vehicle Bicycle Model
@@ -38,6 +41,8 @@ public:
     std::string TIR_file_name {};
     MF_tire_model tire_front {TIR_file_name};
     MF_tire_model tire_rear {TIR_file_name};
+    double tire_front_output [5] {};
+    double tire_rear_output [5] {};
     double C_f = - tire_front.Kya(Fz_f, 0, 0); // Front cornering stiffness, N/rad
     double C_r = - tire_rear.Kya(Fz_r, 0, 0); // Rear cornering stiffness, N/rad
 
@@ -59,6 +64,7 @@ public:
                const double &delta_o_in, const double &Fx_o_in);
     double f5 (const float &R, const float &V_o, const double &u_o_in, const double &v_o_in, const double &w_o_in,
                const double &delta_o_in, const double &Fx_o_in);
+
 
 };
 

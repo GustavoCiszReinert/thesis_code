@@ -208,7 +208,7 @@ MF_tire_model::MF_tire_model(std::string file_name) : TIR_file_name(file_name) {
 }
 
 // LONGITUDINAL FORCE, PURE LONGITUDINAL SLIP
-double MF_tire_model::Fxo(float Fz, float dfz, float kappa, float gamma, float dpi) {
+double MF_tire_model::Fxo(float Fz, double dfz, double kappa, double gamma, double dpi) {
     double SHx{MF_tire_model::SHx(dfz)};
     double kappa_x{MF_tire_model::kappa_x(kappa, SHx)};
     double Cx{MF_tire_model::Cx()};
@@ -221,7 +221,7 @@ double MF_tire_model::Fxo(float Fz, float dfz, float kappa, float gamma, float d
     return Dx * sin(Cx * atan(Bx * kappa_x - Ex * (Bx * kappa_x - atan(Bx * kappa_x)))) + SVx;}
 
 // LATERAL FORCE, PURE SIDE SLIP
-double MF_tire_model::Fyo(float Fz, float dfz, float alpha, float phi, float gamma_star, float dpi){
+double MF_tire_model::Fyo(float Fz, double dfz, double alpha, double phi, double gamma_star, double dpi){
     if (TURN_SLIP_MODE) {
         double Byp{MF_tire_model::Byp(dfz, alpha)};
         ZETA2 = MF_tire_model::Zeta2(phi, Byp);
@@ -261,7 +261,7 @@ double MF_tire_model::Fyo(float Fz, float dfz, float alpha, float phi, float gam
     return Dy * sin(Cy * atan(By * alpha_y - Ey * (By * alpha_y - atan(By * alpha_y)))) + SVy;}
 
 // ALIGNING TORQUE PURE SIDE SLIP
-double MF_tire_model::Mzo(float Fz, float dfz, float alpha, float phi, float gamma_star, float dpi){
+double MF_tire_model::Mzo(float Fz, double dfz, double alpha, double phi, double gamma_star, double dpi){
     double SHt{MF_tire_model::SHt(dfz, gamma_star)};
     double alpha_t{MF_tire_model::alpha_t(alpha, SHt)};
     double Bt{MF_tire_model::Bt(dfz, gamma_star)};
@@ -291,37 +291,50 @@ double MF_tire_model::Mzo(float Fz, float dfz, float alpha, float phi, float gam
     return (-to * Fyo) + Mzro;} // Fyo for gamma = turn slip = 0
 
 // OVERTURNING COUPLE
-double MF_tire_model::Mx(double Fy, float Fz, float gamma, float dpi) const{
+double MF_tire_model::Mx(double Fy, float Fz, double gamma, double dpi) const{
     return UNLOADED_RADIUS * Fz * (QSX1 * LVMX - QSX2 * gamma * (1 + PPMX1 * dpi) + QSX3 * (Fy / FNOMIN) + QSX4 *
     cos(QSX5 * atan(pow(QSX6 * (Fz / FNOMIN), 2))) * sin(QSX7 * gamma + QSX8 * atan(QSX9
     * (Fy / FNOMIN))) + QSX10 * atan(QSX11 * (Fz / FNOMIN)) * gamma) * LMX;}
 
 // ROLLING RESISTANCE MOMENT
-double MF_tire_model::My(double Fx, float Fz, float gamma, float Vx) const{
+double MF_tire_model::My(double Fx, float Fz, double gamma, float Vx) const{
     return Fz * UNLOADED_RADIUS * (QSY1 + QSY2 * (Fx / FNOMIN) + QSY3 * abs(Vx / LONGVL) + QSY4 *
     pow((Vx / LONGVL), 4) + (QSY5 + QSY6 * (Fz / FNOMIN)) * pow(gamma, 2)) * (pow((Fz / FNOMIN), QSY7)
     * pow((INFLPRES / NOMPRES), QSY8)) * LMY;}
 
-void MF_tire_model::tire_model_calc(float kappa, float alpha, float phi, float Vx, float gamma, float Fz, double MF_output [], int user_mode){
+void MF_tire_model::calculate_output(double kappa, double alpha, double phi, float Vx, double gamma, float Fz,
+                                     double MF_output [], int user_mode, int sign_convention){
 
     // MF_OUTPUT [Fx, Fy, My, Mz, Mx]
 
-    float dfz{MF_tire_model::dfz(Fz)};
-    float dpi{MF_tire_model::dpi()};
-    float gamma_star{MF_tire_model::gamma_star(gamma)};
+    // Sign convention: Adapted SAE: 0 = ISO sign convention; 1 = Adapted SAE sign convention
+    // Pacejka tire model uses ISO sign convention
 
-    if (user_mode == 0) { // simplified tire model (tire in linear range)
-
+    switch (sign_convention) {
+        case 0: {break;}
+        case 1: {alpha = - alpha;
+                    break;}
+        default: std::cerr << "Sign convention check was not performed correctly" << std::endl;
     }
 
-    if (user_mode == 1) { // longitudinal F&M only: Fx, My
-        MF_output[0] = MF_tire_model::Fxo(Fz, dfz, kappa, gamma, dpi);
-        MF_output[2] = MF_tire_model::My(MF_output[0], Fz, gamma, Vx);
-    }
+    double dfz{MF_tire_model::dfz(Fz)};
+    double dpi{MF_tire_model::dpi()};
+    double gamma_star{MF_tire_model::gamma_star(gamma)};
 
-    if (user_mode == 2) { // lateral F&M only: Fy, Mz, Mx
-        MF_output[1] = MF_tire_model::Fyo(Fz, dfz, alpha, phi, gamma_star, dpi);
-        MF_output[3] = MF_tire_model::Mzo(Fz, dfz, alpha, phi, gamma_star, dpi);
-        MF_output[4] = MF_tire_model::Mx(MF_output[1], Fz, gamma, dpi);
+    switch (user_mode) { // simplified tire model (tire in linear range)
+        case 0: {
+            MF_output[1] = MF_tire_model::Kya(Fz, 0, 0) * alpha;
+            break;}
+        case 1: { // longitudinal F&M only: Fx, My
+            MF_output[0] = MF_tire_model::Fxo(Fz, dfz, kappa, gamma, dpi);
+            MF_output[2] = MF_tire_model::My(MF_output[0], Fz, gamma, Vx);
+            break;}
+        case 2:{ // lateral F&M only: Fy, Mz, Mx
+            MF_output[1] = MF_tire_model::Fyo(Fz, dfz, alpha, phi, gamma_star, dpi);
+            MF_output[3] = MF_tire_model::Mzo(Fz, dfz, alpha, phi, gamma_star, dpi);
+            MF_output[4] = MF_tire_model::Mx(MF_output[1], Fz, gamma, dpi);
+            break;}
+        default:{
+            std::cerr << "No use mode selected" << std::endl;}
     }
 }
