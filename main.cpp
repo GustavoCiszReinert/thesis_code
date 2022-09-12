@@ -46,47 +46,47 @@ void calculate_jacobian_ana(const bicycle_model& veh, Eigen::MatrixXd& jacobian)
     jacobian(4, 4) = 0;
 }
 
-void calculate_jacobian_num(float R, float V_o, bicycle_model& veh, Eigen::MatrixXd& jacobian, Eigen::VectorXd &function_val, double h = 1E-6){
+void calculate_jacobian_num(float R, float V_o, bicycle_model& veh, Eigen::MatrixXd& jacobian, Eigen::VectorXd &function_val_j, double h = 1E-6){
     jacobian(0, 0) = 0;
     jacobian(0, 1) = 0;
     jacobian(0, 2) = (veh.f1(R, V_o, veh.u_o, veh.v_o, veh.w_o + h, veh.delta_o,
-                             veh.Fx_o) - function_val(0)) / h;
+                             veh.Fx_o) - function_val_j(0)) / h;
     jacobian(0, 3) = 0;
     jacobian(0, 4) = 0;
     jacobian(1, 0) = (veh.f2(R, V_o, veh.u_o + h, veh.v_o, veh.w_o, veh.delta_o,
-                             veh.Fx_o) - function_val(1)) / h;
+                             veh.Fx_o) - function_val_j(1)) / h;
     jacobian(1, 1) = (veh.f2(R, V_o, veh.u_o, veh.v_o + h, veh.w_o, veh.delta_o,
-                             veh.Fx_o) - function_val(1)) / h;
+                             veh.Fx_o) - function_val_j(1)) / h;
     jacobian(1, 2) = 0;
     jacobian(1, 3) = 0;
     jacobian(1, 4) = 0;
     jacobian(2, 0) = (veh.f3(R, V_o, veh.u_o + h, veh.v_o, veh.w_o, veh.delta_o,
-                             veh.Fx_o) - function_val(2)) / h;
+                             veh.Fx_o) - function_val_j(2)) / h;
     jacobian(2, 1) = (veh.f3(R, V_o, veh.u_o, veh.v_o + h, veh.w_o, veh.delta_o,
-                             veh.Fx_o) - function_val(2)) / h;
+                             veh.Fx_o) - function_val_j(2)) / h;
     jacobian(2, 2) = (veh.f3(R, V_o, veh.u_o, veh.v_o, veh.w_o + h, veh.delta_o,
-                             veh.Fx_o) - function_val(2)) / h;
+                             veh.Fx_o) - function_val_j(2)) / h;
     jacobian(2, 3) = (veh.f3(R, V_o, veh.u_o, veh.v_o, veh.w_o, veh.delta_o + h,
-                             veh.Fx_o) - function_val(2)) / h;
+                             veh.Fx_o) - function_val_j(2)) / h;
     jacobian(2, 4) = (veh.f3(R, V_o, veh.u_o, veh.v_o, veh.w_o, veh.delta_o,
-                             veh.Fx_o + h) - function_val(2)) / h;
+                             veh.Fx_o + h) - function_val_j(2)) / h;
     jacobian(3, 0) = (veh.f4(R, V_o, veh.u_o + h, veh.v_o, veh.w_o, veh.delta_o,
-                             veh.Fx_o) - function_val(3)) / h;
+                             veh.Fx_o) - function_val_j(3)) / h;
     jacobian(3, 1) = (veh.f4(R, V_o, veh.u_o, veh.v_o + h, veh.w_o, veh.delta_o,
-                             veh.Fx_o) - function_val(3)) / h;
+                             veh.Fx_o) - function_val_j(3)) / h;
     jacobian(3, 2) = (veh.f4(R, V_o, veh.u_o, veh.v_o, veh.w_o + h, veh.delta_o,
-                             veh.Fx_o) - function_val(3)) / h;
+                             veh.Fx_o) - function_val_j(3)) / h;
     jacobian(3, 3) = (veh.f4(R, V_o, veh.u_o, veh.v_o, veh.w_o, veh.delta_o + h,
-                             veh.Fx_o) - function_val(3)) / h;
+                             veh.Fx_o) - function_val_j(3)) / h;
     jacobian(3, 4) = 0;
     jacobian(4, 0) = (veh.f5(R, V_o, veh.u_o + h, veh.v_o, veh.w_o, veh.delta_o,
-                             veh.Fx_o) - function_val(4)) / h;
+                             veh.Fx_o) - function_val_j(4)) / h;
     jacobian(4, 1) = (veh.f5(R, V_o, veh.u_o, veh.v_o + h, veh.w_o, veh.delta_o,
-                             veh.Fx_o) - function_val(4)) / h;
+                             veh.Fx_o) - function_val_j(4)) / h;
     jacobian(4, 2) = (veh.f5(R, V_o, veh.u_o, veh.v_o, veh.w_o + h, veh.delta_o,
-                             veh.Fx_o) - function_val(4)) / h;
+                             veh.Fx_o) - function_val_j(4)) / h;
     jacobian(4, 3) = (veh.f5(R, V_o, veh.u_o, veh.v_o, veh.w_o, veh.delta_o + h,
-                             veh.Fx_o) - function_val(4)) / h;
+                             veh.Fx_o) - function_val_j(4)) / h;
     jacobian(4, 4) = 0;
 }
 
@@ -105,7 +105,10 @@ int main() {
     float tol {1E-3};
 
     // Initial condition for solution method
-    veh.set_vehicle_state(V_o, 0, 0, (veh.w / R), 100);
+    veh.set_vehicle_state(V_o, 0, 0, (veh.w / (10 * R)), 100);
+    veh.set_tire_model_mode(2);
+    // veh.tire_front.turn_on_TURN_SLIP();
+    // veh.tire_rear.turn_on_TURN_SLIP();
 
     veh_state(0) = veh.u_o;
     veh_state(1) = veh.v_o;

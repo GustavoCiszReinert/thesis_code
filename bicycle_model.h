@@ -43,6 +43,10 @@ public:
     MF_tire_model tire_rear {TIR_file_name};
     double tire_front_output [5] {};
     double tire_rear_output [5] {};
+    int tire_user_mode{};
+    void set_tire_model_mode(int user_mode_input){
+        tire_user_mode = user_mode_input;
+    }
     double C_f = - tire_front.Kya(Fz_f, 0, 0); // Front cornering stiffness, N/rad
     double C_r = - tire_rear.Kya(Fz_r, 0, 0); // Rear cornering stiffness, N/rad
 

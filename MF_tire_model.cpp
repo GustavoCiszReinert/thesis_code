@@ -17,7 +17,7 @@ MF_tire_model::MF_tire_model(std::string file_name) : TIR_file_name(file_name) {
     UNLOADED_RADIUS = get_coefficient(TIR_file_content, "UNLOADED_RADIUS"); // Unloaded tire radius
 
     // OPERATING_CONDITIONS
-    INFLPRES = get_coefficient(TIR_file_content, "INFLPRES"); // Tire inflation pressure, Pa
+    // INFLPRES = get_coefficient(TIR_file_content, "INFLPRES"); // Tire inflation pressure, Pa
     NOMPRES = get_coefficient(TIR_file_content, "NOMPRES"); // Nominal inflation pressure
 
     // VERTICAL
@@ -331,8 +331,8 @@ void MF_tire_model::calculate_output(double kappa, double alpha, double phi, flo
             break;}
         case 2:{ // lateral F&M only: Fy, Mz, Mx
             MF_output[1] = MF_tire_model::Fyo(Fz, dfz, alpha, phi, gamma_star, dpi);
-            MF_output[3] = MF_tire_model::Mzo(Fz, dfz, alpha, phi, gamma_star, dpi);
-            MF_output[4] = MF_tire_model::Mx(MF_output[1], Fz, gamma, dpi);
+            // MF_output[3] = MF_tire_model::Mzo(Fz, dfz, alpha, phi, gamma_star, dpi);
+            // MF_output[4] = MF_tire_model::Mx(MF_output[1], Fz, gamma, dpi);
             break;}
         default:{
             std::cerr << "No use mode selected" << std::endl;}

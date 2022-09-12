@@ -16,8 +16,36 @@ BREFF = 0.2600                    $Low load stiffness e.r.r.
 DREFF = 0.2500                    $Peak value of e.r.r.     
 FREFF = 0.3000                    $High load stiffness e.r.r.     
 FNOMIN = 4000                     $Nominal wheel load
+[DIMENSION]
+UNLOADED_RADIUS = 0.3135          $ m
+[OPERATING_CONDITIONS]
+NOMPRES = 220000                  $ Pa
 [SCALING_COEFFICIENTS]
 LFZO = 1.0                        $Scale factor of nominal (rated) load
+LCX = 1.0
+LMUX = 1.0
+LEX = 1.0
+LKX = 1.0
+LHX = 1.0
+LVX = 1.0
+LCY = 1.0
+LMUY = 1.0
+LEY = 1.0
+LKY = 1.0
+LKYC = 1.0
+LKZC = 1.0
+LHY = 1.0
+LVY = 1.0
+LTR = 1.0
+LRES = 1.0
+LXAL = 1.0
+LYKA = 1.0
+LVYKA = 1.0
+LS = 1.0
+LMX = 1.0
+LVMX = 1.0
+LMY = 1.0
+LMP = 1.0
 
 LKY = 1.0                         $Scale factor of Fy cornering stiffness
 [LONGITUDINAL_COEFFICIENTS] 

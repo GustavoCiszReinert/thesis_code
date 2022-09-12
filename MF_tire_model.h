@@ -35,7 +35,7 @@ class MF_tire_model {
     double UNLOADED_RADIUS {}; // Unloaded tire radius
 
     // OPERATING_CONDITIONS
-    double INFLPRES {}; // Tire inflation pressure, Pa
+    double INFLPRES {220000}; // Tire inflation pressure, Pa
     double NOMPRES {}; // Nominal inflation pressure
 
     // VERTICAL
@@ -215,7 +215,6 @@ class MF_tire_model {
     double QSY8{};
 
     // TURNSLIP_COEFFICIENTS
-
     double PDXP1 = {};
     double PDXP2 = {};
     double PDXP3 = {};
@@ -240,6 +239,8 @@ public:
 
     // CONSTRUCTOR
     explicit MF_tire_model(std::string file_name);
+
+    void turn_on_TURN_SLIP() {TURN_SLIP_MODE = true;}
 
     //
     double dfz(float Fz) const {return (Fz - LFZO * FNOMIN) / (LFZO * FNOMIN);}
